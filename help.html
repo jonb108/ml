@@ -1,0 +1,334 @@
+<html>
+<head>
+<meta charset='UTF-8'>
+<style>
+body {
+    margin: .5in;
+}
+body, td {
+    font-size: 18pt;
+    font-family: Arial;
+}
+h4 {
+    margin-bottom: 0mm;
+}
+.blue {
+    color: blue;
+}
+.red {
+    color: red;
+}
+.green {
+    color: darkgreen;
+    margin-left: .5in;
+}
+ul {
+    margin-top: 5mm;
+    margin-bottom: 5mm;
+}
+a {
+    text-decoration: none;
+    color: blue;
+}
+li {
+    margin-bottom: 3mm;
+}
+</style>
+</head>
+<body>
+<h1>VB Message Library</h1>
+<h2>Introduction</h2>
+This library is a database of messages that have been
+displayed on overpasses by Visibility Brigades (VB) around the nation.
+You can add messages and you can search for them in several ways.
+Messages can be assigned topics and you can see all
+messages within a given topic.
+The information here is 'crowdsourced'.
+It's up to you to contribute, maintain, and organize it.
+The library lives here:
+<ul>
+<a target=_blank href='https://logicalpoetry.com/ml'>logicalpoetry.com/ml</a>
+</ul>
+<p>
+An explanatory  video will be made soon.
+<!--
+Here is <b><a target=_blank href='https://youtu.be/7V4gEn2M1X0'>a video</a></b>
+that demonstrates how it works.
+-->
+<h2>Questions?</h2>
+Jon Bjornstad<br>
+<a href='mailto:jon.bjornstad@gmail.com?subject=VB Message Library'>jon.bjornstad@gmail.com</a><br>
+415-246-6499
+<h2>Messages</h2>
+The 'home page' of the library shows the messages.
+You can always get to the home page by clicking on the
+large title <b>VB Message Library</b> at the top.
+<h4>Adding</h4>
+You can add a message with the link <span class=blue>Add Message</span>.
+You provide a date and the text of your messsage.
+The date is usually when the message was first displayed on an overpass.
+You are also asked for an <i>optional</i> Brigade Name, City, and State.
+<p>
+<img src=add_message.png width=900>
+<p>
+After the message is added you are asked what Topics apply to it.
+See below for an explanation of Topics.
+<p>
+Duplicate messages are ignored.
+<p>
+The Brigade Name, City, and State are remembered
+for when you next add a message.
+<h4>Sorting</h4>
+You can sort the messages in 2 ways:
+<ol>
+<li><span class=blue>Date</span> - Newest ones first.
+<p>
+<li><span class=blue>Message</span> - The messages are listed alphabetically.
+</ol>
+The first 30 messages are shown.  If you want to see <i>all</i> of them
+click on <span class=blue>Show All</span> at the bottom.
+<h4>Searching</h4>
+You can search for a keyword in a message.  The word will be highlighted
+in the messages that were found.
+<ul>
+<img src=health.png width=870>
+</ul>
+Matching messages are shown sorted by date
+so the newest messages are on top.
+<p>
+There is also a link entitled <span class=blue>Search+</span>
+with which you can search for messages in more complex ways.
+<p>
+<img src=search_plus.png width=700>
+<h2>Topics</h2>
+Topics are categories or themes - like Democracy or Justice.
+Or Corruption or Tariffs or Gun Control.  They can be whatever you want.
+You can add new Topics and can assign one or more topics to messages.
+<p>
+From the home page (Messages) click on the link <span class=blue>Topics</span> and you will
+see the list of current topics.
+<h4>Adding</h4>
+Topics are added with the link <span class=blue>Add Topics</span>.
+You can add 5 at once.
+<ul>
+<img src=topics5.png width=600>
+</ul>
+<h4>Applying Topics</h4>
+After a message is added you are asked which topics (one or more)
+apply to the message:
+<ul>
+<img src=apply.png width=550>
+</ul>
+Another way of assigning topics to a message is to
+simply click on a message that you see in the list.
+The check list of topics will be shown
+and you can choose the topics that apply to the message.
+If you think the message would be a great one for your own brigade
+to use, you can click on the message in this dialog to copy it to the
+clipboard.   Then you can paste it wherever you wish.
+<h4>Sorting Topics</h4>
+The table of topics can be sorted by <span class=blue>Topic</span> (alphabetically) or by <span class=blue>Count</span> (decreasing).
+The order is down the first column and then on to the next columns. 
+<p>
+By Topic:<br>
+<img style='margin-left: .5in' src=topic.png>
+<p>
+By Count:<br>
+<img style='margin-left: .5in' src=count.png>
+<br>
+A topic's Count is how many messages have been assigned that topic.
+<h4>Messages by Topic</h4>
+Clicking on a topic name will show the messages which have
+that topic assigned to them.  They are sorted by date.
+<ul>
+<img src=no_kings.png width=780>
+</ul>
+<h2>Importing Messages</h2>
+Messages can be added one by one with the <span class=blue>Add Message</span> link.
+More efficiently you can import a file of messages.
+Click on <span class=blue>Import</span> and you will see:
+<ul>
+<img src=import.png width=800>
+</ul>
+You are asked for a file of messages and
+an <i>optional</i> Brigade Name, City, and State that
+will apply to all imported messages.
+<p>
+Choose a file
+on your computer containing messages and
+click the Import button.  Lines can be in two different formats:
+<ul class=green style='font-size: 20pt;'>
+TARIFFS ARE TAXES PAID BY US!<br>
+5/6/25,POTUS IS PUTIN'S PUPPET<br>
+HEALTHCARE NOT WARFARE<br>
+11/27,"HAPPPY THANKSGIVING"
+</ul>
+If a line has a comma and there is a date before the first comma
+the message will be imported with that date.
+Lines without dates will be assigned today's date.
+<p>
+The import file will usually be a .csv file (exported from a spreadsheet
+- <span class=red>c</span>omma <span class=red>s</span>eparated <span class=red>v</span>alues)
+but it could also be just a plain .txt file.
+<p>
+<p>
+After the messages are imported you are asked to choose topics
+for each of them in sequence.  If you imported many messages and
+don't have time to do all of the topic assignments
+for each of them you can simply
+click on the large Title at the top to return to the 'home page'
+and abort the topic assignment process.  You can assign topics
+later by clicking on the messages or, even better, see the next section.
+<h2>Messages with No Topics</h2>
+It is important for messages to be tagged with appropriate Topics
+as this enables the very useful topic search as described above.
+<p>
+However, if one has added a message or done a large import of messages
+<i>without</i> setting topics there <i>is</i> a way to address these 'no topic'
+messages.   Enter the term 'NT' (no topics) in the search text field
+and hit Enter.  This will search for all messages without topics
+and ask you to set the applicable topics for each of them in sequence.
+<h2>Date Formats</h2>
+When entering dates for messages you can use several formats:
+<ul>
+<span class=green>mm/dd/yy</span><p>
+<span class=green>mm/dd</span> - current year<p>
+<span class=green>dd</span> - current month<p>
+<span class=green>T</span> - today
+</ul>
+<h2>Messages in a Date Range</h2>
+You can see all messages in a date range by entering this
+in the search text field:
+<ul>
+DR 4/5 TO 6/12/25
+</ul>
+DR = Date Range
+<p>
+Another example:
+<ul>
+DR 10 TO T <span style='margin-left: 1.4in;'>(from the 10th of this month to today)</span>
+</ul>
+The messages are sorted by increasing date.
+<h2>Keyboard Shortcuts</h2>
+In the search text field you can use these 'commands' to
+invoke various functions;
+<p>
+<table cellpadding=5 style='margin-left: .5in;'>
+<tr>
+<td>A</td>
+<td>Add Message</td>
+</tr>
+<tr>
+<td>AT</td>
+<td>Add Topic</td>
+</tr>
+<tr>
+<td>BN</td>
+<td>Show brigade names - with city and state.
+</tr>
+<tr>
+<td>C</td>
+<td>Show Topics ordered by Count.</td>
+</tr>
+<tr>
+<td>CT</td>
+<td>Show counts of messages and topics.</td>
+</tr>
+<tr>
+<td>D</td>
+<td>Sort Messages by Date</td>
+</tr>
+<tr>
+<td>DR ...</td>
+<td>Show Messages in a Date Range</td>
+</tr>
+<tr>
+<td>I</td>
+<td>Import Messages from a .csv file</td>
+</tr>
+<tr>
+<td>M</td>
+<td>Sort Messages alphabetically</td>
+</tr>
+<tr>
+<td>NT</td>
+<td>Add topics to Messages with No Topics</td>
+</tr>
+<tr>
+<td>S</td>
+<td>Search Plus
+</tr>
+<tr>
+<td>T</td>
+<td>Show Topics ordered alphabetically.</td>
+</tr>
+</table>
+<h2>See Also</h2>
+Another web application to help manage a brigade's letters:
+<ul>
+<a target=_blank href='https://logicalpoetry.com/vb'>logicalpoetry.com/vb</a>
+</ul>
+After a one-time initialization you can easily check
+whether you have enough letters to make a given message.
+You can also easily keep a historical list of the messsages you had
+on the bridge - and export them for importing here.
+<h2>Ideas for Future Development</h2>
+<ol>
+<li>Should this web application have its own domain?  What should it be?
+<li>What to do about messages or topics that are added by mistake or
+are inappropriate for some reason?  We can't have a delete
+function available to everyone as someone with nefarious intent might
+delete good ones.  It seems we need 'moderators' with the
+(password protected) ability to do the pruning - to "keep
+the tree healthy".
+<li>The national Signal chat named 'VB Message Brainstorming!'
+is a wonderful place for a free wheeling discussion of creative, timely,
+and potent message ideas.   This library can be used for messages
+that a brigade has <i>actually</i> used on an overpass.
+There is no way to enforce this, of course, aside from
+moderators doing regular maintenance and pruning of unused messages.
+<li>Any other ideas?
+</ol>
+<h2>Acknowledgments</h2>
+I received these two excellent suggestions:
+<p>
+From Rebecca:
+<p class=green>
+I spend many hours poring over the Signal chats for ideas. 
+Would LOVE it if there were a curated searchable, by topic,
+database of messages to which we could add and also peruse for inspiration.
+<p>
+From Dave:
+<div class=green>
+<p>
+One advantage of consolidating with a system like this
+is that we would have a place to look at messages –
+including historical messages.   In a year from now it
+would be interesting to look at themes and analyze and
+maybe rekindle some of those messages.   The other thing
+is cadence: being able to repeat messages at regular
+intervals, and to plan for those release dates.
+<p> 
+I had proposed a "Meme Library" where VB members could
+share their ideas based on campaigns.  If people
+used a central system (will require support, backups,
+administration) we could develop a meme library so that
+instead of looking through 400 posts for a good idea we
+could sort by campaign and look at what others are doing.
+Probably not the way that most grass roots activists will
+collaborate but an ok idea.
+<p> 
+Regarding Meme Library – a one shot URL that prompted
+for input or for queries could be used in the signal
+chat stream.   A script starting with Click here to add
+your message:  three or four prompts.  Done.  Quick.
+And some sort of interface to look up these messages.
+Campaign titles are by their nature amorphous – so allow
+two or three columns.
+</div>
+<h2>Questions?</h2>
+Jon Bjornstad<br>
+<a href='mailto:jon.bjornstad@gmail.com?subject=Visibility Brigade Message Library'>jon.bjornstad@gmail.com</a><br>
+415-246-6499
+</body>
+</html>
