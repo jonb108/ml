@@ -1,0 +1,547 @@
+#!/usr/bin/env perl
+use strict;
+use warnings;
+use lib '.';
+
+=comment
+
+TODO:
+    link to ml
+    see log of all ml activity
+        tail
+
+=cut
+
+sub JON {
+    open my $out, '>>', '/tmp/jon';
+    print {$out} "@_\n";
+    close $out;
+}
+
+sub trim {
+    my ($s) = @_;
+    $s =~ s{\A \s*|\s \z}{}xmsg;
+    $s =~ s{\s{2,}}{ }xmsg;
+    $s;
+}
+
+
+use CGI;
+use CGI::Carp qw/
+    fatalsToBrowser
+    warningsToBrowser
+/;
+
+my $result;
+my $cgi_bin_ml = 'https://logicalpoetry.com/cgi-bin/ml';
+my $cgi_bin_mla = 'https://logicalpoetry.com/cgi-bin/ml_admin';
+my $ncol = 4;
+my $space = '&nbsp;';
+my $q = CGI->new();
+my %P = $q->Vars();
+my $cmd = $P{cmd};
+my $search_term = trim uc $P{search_term};
+
+use DBI;
+my $dbh = DBI->connect(
+    'dbi:mysql:logical9_moliere:host2047.hostmonster.com',
+    'logical9_sahadev',
+    'yoG.Sit801',
+    { RaiseError => 1, AutoCommit => 1 }
+) or die "cannot connect to database\n";
+
+# used in two different places so we prepare now
+my $get_msg_sth = $dbh->prepare(<<'EOS');
+
+        SELECT *
+          FROM messages
+         WHERE id = ?
+
+EOS
+
+use Date::Simple qw/
+    date
+    today
+/;
+
+sub log_it {
+    open my $out, '>>', 'ml_log';
+    print {$out} "@_\n";
+    close $out;
+}
+
+sub red {
+    "<span class=red>$_[0]</span>";
+}
+
+sub gray {
+    "<span class=gray>$_[0]</span>";
+}
+
+sub green {
+    "<span class=green>$_[0]</span>";
+}
+
+sub msg_green {
+    "<span class=msg_green>$_[0]</span>";
+}
+
+sub meta {
+    my ($href) = @_;
+    my $bn = $href->{brigade_name} || '';
+    my $ct = $href->{city} || '';
+    my $st = $href->{state} || '';
+    my $meta = '';
+    if ($bn || $ct || $st) {
+        if ($bn) {
+            $meta .= $bn;
+        }
+        if ($ct) {
+            if ($meta) {
+                $meta .= ' - ';
+            }
+            $meta .= $ct;
+        }
+        if ($st) {
+            if ($meta) {
+                $meta .= ', ';
+            }
+            $meta .= $st;
+        }
+        $meta = "$meta<br>";
+    }
+    return $meta;
+}
+
+sub msg_fmt {
+    my ($href) = @_;
+    my $mid = $href->{id};
+    my $align = 'center';
+    $q->Tr(
+        $q->td({ valign => $align, width => '9%',
+                 style => 'white-space: nowrap;' },
+               "<label><input type=checkbox name=del_msg_id value='$href->{id}'> "
+               . gray(date($href->{mdate})->format('%D'))
+               . $space
+               . msg_green($href->{message})
+               . $space
+               . "$href->{topics_desc}"
+               . "</label>\n")
+    );
+}
+
+sub disp_topics {
+    my $n_topics_sth = $dbh->prepare(<<"EOS");
+        
+        SELECT count(*)
+          FROM topics
+
+EOS
+    $n_topics_sth->execute();
+    my $aref = $n_topics_sth->fetchrow_arrayref();
+    my $n_topics = $aref->[0];
+    my $per_col = int ($n_topics/$ncol);
+    my $all_topics_sth = $dbh->prepare(<<"EOS");
+
+        SELECT id, description, count
+          FROM topics
+      ORDER BY description asc
+
+EOS
+    $all_topics_sth->execute();
+    $result = "<form action=$cgi_bin_mla method=post>\n";
+    $result .= "<input type=hidden name=cmd value='del_topics'>\n";
+    $result .= "<table cellpadding=5><tr><td valign=top>\n";
+    my $n = 0;
+    while (my $href = $all_topics_sth->fetchrow_hashref()) {
+        my $tid = $href->{id};
+        my $desc = $href->{description};
+        $result .= "<label>"
+            . "<input type=checkbox name=topic_ids value=$tid>"
+            . " $desc</label><p>\n";
+        ++$n;
+        if ($n >= $per_col) {
+            $result .= "</td><td valign=top>\n";
+            $n = 0;
+        }
+    }
+    if ($n != 0) {
+        $result .= "</td>\n";
+        $n = 0;
+    }
+    $result .= <<'EOH';
+</tr></table>
+<p>
+<input type=submit class=sub value="Delete Selected Topics">
+</form>
+EOH
+}
+
+sub search_messages {
+    my $search_sth = $dbh->prepare(<<"EOS");
+
+        SELECT *
+          FROM messages
+         WHERE message like '%$search_term%'
+      ORDER BY mdate desc
+
+EOS
+    $search_sth->execute();
+    log_it("admin search for $search_term");
+    my $n = 0;
+    my @rows;
+    $result = '';
+    while (my $href = $search_sth->fetchrow_hashref()) {
+        ++$n;
+        $href->{message} =~ s{\Q$search_term}
+                             {<span class=highlight>$search_term</span>}xmsg;
+        push @rows,  msg_fmt($href);
+    }
+    if ($n == 0) {
+        $result = "No messages match '$search_term'.";
+    }
+    else {
+        $result = "<form action=$cgi_bin_mla>\n" 
+                . "<input type=hidden name=cmd value='del_msg'>\n"
+                . $q->table({ cellpadding => 5 }, @rows)
+                . "<p><input class=sub type=submit value='Delete Checked Messages'>"
+                . "</form>\n";
+    }
+}
+
+sub init {
+    print $q->header();
+    print <<"EOH";
+<html>
+<head>
+<style>
+.all_opt {
+    margin-left: 1.5in;
+    color: green;
+    font-size: 18pt;
+    font-weight: normal;
+}
+.opt_help2 {
+    margin-left: 1.2in;
+    color: green;
+}
+.opt_help {
+    position: absolute;
+    left: 780;
+    color: green;
+}
+.cur_sort {
+    font-weight: bold;
+}
+.info {
+    margin-left: .1in;
+    font-size: 20pt;
+    font-weight: bold;
+    color: darkgreen;
+    cursor: pointer;
+}
+body {
+    margin: .3in;
+    line-height: 12mm;
+}
+body, input, td {
+    font-size: 18pt;
+    font-family: Arial;
+}
+a {
+    text-decoration: none;
+    color: blue;
+}
+.left {
+    margin-left: .6in;
+}
+.right {
+    margin-right: 1in;
+}
+.big {
+    font-size: 26pt;
+    font-weight: bold;
+}
+.highlight {
+    background: #ffff66;
+}
+.sub {
+    background: lightgreen;
+}
+.red {
+    color: red;
+}
+.green {
+    color: green;
+    font-size: 28pt;
+    font-weight: bold;
+}
+.black {
+    color: black;
+}
+.msg_green {
+    color: green;
+    font-size: 22pt;
+    font-weight: bold;
+}
+.pointer {
+    cursor: pointer;
+}
+.gray, .curs {
+    color: #a0a0a0;
+}
+.curs {
+    cursor: pointer;
+    font-size: 18pt;
+    font-weight: bold;
+}
+input[type='checkbox'] {
+    -webkit-appearance:none;
+    width:15px;
+    height:15px;
+    background:white;
+    border-radius:4px;
+    border:2px solid #555;
+}
+input[type='checkbox']:checked {
+    background: lightgreen;
+}
+pre {
+    line-height: 8mm;
+    font-family: Arial;
+}
+</style>
+</head>
+<body>
+<h1><a style='color:black' href=$cgi_bin_ml?tab=messages>VB Message Library Admin</a></h1>
+<form action=$cgi_bin_mla>
+Search Messages for <input type=text name=search_term size=15 autofocus style='text-transform: uppercase'>
+<a style='margin-left: .75in' href=$cgi_bin_mla?cmd=topics>Topics</a>
+<a style='margin-left: .75in' href=$cgi_bin_mla?cmd=regen>Regenerate</a>
+</form>
+$result
+</body>
+</html>
+EOH
+}
+
+sub del_msgs {
+    my @mids = $q->param('del_msg_id');
+    if (! @mids) {
+        $result = "No messages to delete.";
+        return;
+    }
+    my $mids = join ', ', @mids;
+    my $del_msgs_sth = $dbh->prepare(<<"EOS");
+        
+        DELETE
+          FROM messages
+         WHERE id in ($mids)
+
+EOS
+    my $del_m_ts_sth = $dbh->prepare(<<"EOS");
+        
+        DELETE
+          FROM message_topic
+         WHERE message_id in ($mids)
+
+EOS
+    $del_msgs_sth->execute();
+    $del_m_ts_sth->execute();
+    my $nmsgs = @mids;
+    my $pl = $nmsgs == 1? '': 's';
+    log_it("deleted $nmsgs message$pl");
+    $result = "Deleted $nmsgs message$pl.";
+}
+
+sub del_topics {
+    my @tids = $q->param('topic_ids');
+    if (! @tids) {
+        $result = "No topics to delete.";
+        return;
+    }
+    my $tids = join ', ', @tids;
+    my $del_topics_sth = $dbh->prepare(<<"EOS");
+
+        DELETE
+          FROM topics
+         WHERE id in ($tids)
+
+EOS
+    my $del_m_ts_sth = $dbh->prepare(<<"EOS");
+
+        DELETE
+          FROM message_topic
+         WHERE topic_id in ($tids)
+
+EOS
+    $del_topics_sth->execute();
+    $del_m_ts_sth->execute();
+    my $ntopics = @tids;
+    my $pl = $ntopics == 1? '': 's';
+    log_it("deleted $ntopics topic$pl");
+    $result = "Deleted $ntopics topic$pl.";
+}
+
+sub regen {
+    # orphaned ids:
+    #
+    # select distinct message_id
+    #   from message_topic
+    #  where not message_id in (select id from messages);
+    #
+    # select distinct topic_id
+    #   from message_topic
+    #  where not topic_id in (select id from topics);
+    #
+    my $orph_msg_sth = $dbh->prepare(<<'EOS');
+        
+        SELECT
+      DISTINCT message_id
+          FROM message_topic
+         WHERE NOT message_id IN (SELECT id FROM messages)
+
+EOS
+    $orph_msg_sth->execute();
+    my @mids;
+    my $mids;
+    while (my $href = $orph_msg_sth->fetchrow_hashref()) {
+        push @mids, $href->{message_id};
+    }
+    if (@mids) {
+        $mids = join ', ', @mids;
+        $result .= "orphaned message ids: @mids<br>";
+    }
+    my $orph_top_sth = $dbh->prepare(<<'EOS');
+        
+        SELECT
+      DISTINCT topic_id
+          FROM message_topic
+         WHERE NOT topic_id IN (SELECT id FROM topics)
+
+EOS
+    $orph_top_sth->execute();
+    my @tids;
+    my $tids;
+    while (my $href = $orph_top_sth->fetchrow_hashref()) {
+        push @tids, $href->{topic_id};
+    }
+    if (@tids) {
+        $tids = join ', ', @tids;
+        $result .= "orphaned topic ids: @tids<br>";
+    }
+
+    if ($mids || $tids) {
+        $mids ||= '0';  # prevents SQL syntax error
+        $tids ||= '0';
+        my $del_msg_top_sth = $dbh->prepare(<<"EOS");
+            
+            DELETE 
+              FROM message_topic
+             WHERE message_id IN ($mids)
+                   OR
+                   topic_id IN ($tids)
+EOS
+        $del_msg_top_sth->execute();
+    }
+
+
+    # go through all messages
+    #     and get its topics and set topic_desc
+    # go through all topics
+    #     and set its count
+
+    # for each message...
+    my $msgs_sth = $dbh->prepare(<<'EOS');
+
+        SELECT id
+          FROM messages
+
+EOS
+    # rather than creating a hash
+    # with key topic id and value description...
+    # gather topic descriptions and comma separate them
+    my $desc_sth = $dbh->prepare(<<'EOS');
+
+        SELECT description
+          FROM messages m, message_topic mt, topics t
+         WHERE m.id = mt.message_id
+               AND t.id = mt.topic_id
+               AND m.id = ?
+      ORDER BY description asc
+
+EOS
+    # update topic_desc for each message
+    my $upd_topic_desc_sth = $dbh->prepare(<<'EOS');
+
+        UPDATE messages
+           SET topics_desc = ?
+         WHERE id = ?
+
+EOS
+    $msgs_sth->execute();
+    while (my $href_msg = $msgs_sth->fetchrow_hashref()) {
+        my $mid = $href_msg->{id};
+        $desc_sth->execute($mid);
+        my @topics;
+        while (my $desc_href = $desc_sth->fetchrow_hashref()) {
+            push @topics, $desc_href->{description};
+        }
+        my $topic_desc = join ', ', @topics;
+        $upd_topic_desc_sth->execute($topic_desc, $mid);
+    }
+    # for each topic...
+    my $topics_sth = $dbh->prepare(<<'EOS');
+
+        SELECT id
+          FROM messages
+
+EOS
+    # update the count for each topic
+    my $upd_count_sth = $dbh->prepare(<<'EOS');
+
+    UPDATE topics
+       SET count = (
+           SELECT count(*)
+             FROM message_topic
+            WHERE topic_id = ?
+       ) 
+     WHERE id = ?
+
+EOS
+    $topics_sth->execute();
+    while (my $topic_href = $topics_sth->fetchrow_hashref()) {
+        my $tid = $topic_href->{id};
+        $upd_count_sth->execute($tid, $tid);
+    }
+    log_it('regenerated');
+    $result .= 'Regenerated';
+}
+
+if ($search_term eq 'T' || $cmd eq 'topics') {
+    disp_topics();
+}
+elsif ($search_term eq 'R' || $cmd eq 'regen') {
+    regen();
+}
+elsif ($search_term eq 'LG') {
+    init();
+    system("echo '<pre>'; tac ml_log | head -60; echo '</pre>'");
+    exit;
+}
+elsif ($search_term eq 'LG CLEAR') {
+    init();
+    system('mv ml_log ml_log.00; touch ml_log; echo cleared');
+    exit;
+}
+elsif ($search_term) {
+    search_messages();
+}
+elsif ($cmd eq 'del_msg') {
+    del_msgs();
+}
+elsif ($cmd eq 'del_topics') {
+    del_topics();
+}
+
+init();
