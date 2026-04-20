@@ -1003,7 +1003,7 @@ EOS
 sub search_plus {
     print <<"EOH";
 <h3>Search Plus<span class=all_opt >(All fields are optional)</span></h3>
-<form method=post action=$cgi_bin_ml>
+<form method=get action=$cgi_bin_ml>
 <input type=hidden name=cmd value=search_plus2>
 <table cellpadding=5>
 <tr><td align=right>Start Date</td><td><input type=text name=start_date id=date size=8 autofocus style='text-transform: uppercase;'>

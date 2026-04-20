@@ -1,0 +1,146 @@
+we have messages and topics
+
+we won't worry about deleting them.
+we are crowdsourcing and someone nefarious could add a bunch
+of nonsense.  we'll worry about that later.
+
+drop table if exists messages; 
+create table messages (
+    id int(11) primary key auto_increment,
+    message varchar(512),
+    mdate varchar(8),
+    topics_desc varchar(512),
+    score int(11)
+);
+drop table if exists topics; 
+create table topics (
+    id int(11) primary key auto_increment,
+    description varchar(256),
+    count int(11)
+);
+drop table if exists message_topic;
+create table message_topic (
+    message_id int(11),
+    topic_id int(11)
+);
+
+mdate is yyyymmdd
+
+messages>topics_desc is a comma separated string of the
+    descriptions of the topics of the message
+    - duplicated from message_topic for efficiency's sake
+topics>count could be determined by looking at the
+    message_topics records but again ... for efficiency
+
+add topic
+    get description
+    set count to 0
+
+add a message
+    get text in upper case
+    date is in a variety of formats Date::Simple.pm
+        including t, 4/5, 4
+    then assign one or more topics
+
+import a list of messages with or without dates
+    if no date - current date
+
+messages and topics are unique - before adding see if
+    they already exist
+
+list messages in alphabetical order
+list messages in chronological order - with dates
+search for messages with a given topic
+    NOT 'and/or' as with Frank
+
+can add/modify the topics for a specific message
+    especially for the ones imported
+
+can add to or subtract from the score
+    no checking the IP address - for now
+    so one can add/subtract multiple times
+
+first page has two tabs - messages and topics
+
+the count column of topics is for how many
+    messages have this topic
+    update it carefully after every change
+
+TODO:
+
+show all messages in a date range
+
+adding/importing new messages - both score of 1? different?
+
+the log
+    date/time and include IP address?
+
+put style and script in external file so it can be cached?
+
+show first 30 (or so) messages (in whatever search/sort/display) and
+    then have a link saying Show All
+
+Help document
+
+Explanatory and illustrative video
+
+explain crowdsourcing and the responsiblity
+    of the group to not pollute the space with
+    silly messages.   perhaps suggest that it would
+    be a good idea that messages
+    have to have been *actually displayed* on a bridge
+    before being added to the registry.   
+    Freewheeling brainstorming can happen in the
+    Signal chat named VB - Message Brainstorming!
+Topics can be _anything_ - including local names
+    like California or Paramus, NJ - if a VB group
+    wanted to keep track of the history of their messages here.
+how to purge topics with typos or bogus topics?
+how to purge crufty messages - that were added inadvertently
+    or which have a very low score (how low?)
+need a moderator - make a tool for them
+    to delete topics and messages
+    can worry about this later...
+
+test suite
+    add several topics
+    add several messages
+        different dates
+        assign one or more topics to each new message
+    test sorting the messages (alpha, date, score)
+        default is score desc
+    searching the messages
+    verify the topic counts
+    show all in one topic
+        results are ordered by score descending
+    bump some messages score up/down (with + and -) then sort by score
+    adjust the topics on some messages by clicking on
+        the message (or its csv  topics)
+        then check topic counts and csv desc of topics on messages
+
+    power user commands in search text field:
+        A - add message
+        D - sort by date
+        I - import
+        M - sort by message
+        S - sort by score
+        T - to topics page
+        AT - add topic
+
+        note: /D will search for D
+              /AT will search for AT
+    accesskeys
+        control-option key on OSX - Windows?
+            On topics tab
+                m - back to Messages
+                a - add Topic
+                c - sort by Count
+                t - sort by Topic
+            On both tabs
+                v - Message tab with list alpha
+                h - help
+
+    top heading VBMR is link to Messages sorted alphabetically
+
+    this is the beginning of a Help file
+    and an explanatory video

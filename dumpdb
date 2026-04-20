@@ -1,0 +1,2 @@
+#!/bin/sh
+mysqldump -u logical9_sahadev -pyoG.Sit801 logical9_moliere messages topics message_topic >save.sql 2>/dev/null

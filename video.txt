@@ -1,0 +1,49 @@
+Show the Messages
+        text, date
+    by date
+    by message
+
+    search for health
+    search for mp
+        raMPant, truMP, iMPeach
+
+Topics
+    show the table - sort
+    back to messages - topics assigned
+    back to topics, see counts
+        sort by count
+    click on topic - see messages with the count
+        shortcut T
+        choose another
+
+SO ... how to add a message and how
+    to assign topics?
+
+back to messages
+    adding a message
+
+05/09/25,"TARIFFS SCREW TRUCKING JOBS"
+11/30/25,"HEGSETH WAR CRIMINAL"
+
+add topics Tariffs, Hegseth, Pardons, Civil Rights
+    then mention more ... GOP, SCOTUS, POTUS, Midterms, Congress
+        don't add - let others do it
+
+then manually add the two, set topics, score
+click on a message
+    add/remove topic
+    change score, hit return
+    copy to clipboard
+
+show the larger import file
+import many messages - from spreadsheet or .csv file
+and the beginning of the sequence.
+stop, restart with NT
+
+fast forward to ... now we have over 90 messages
+CT for counts
+
+scroll down in list - only 30 are shown
+    'Show All' to see the rest
+
+Help file
