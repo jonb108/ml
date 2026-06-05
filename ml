@@ -126,7 +126,7 @@ sub msg_green {
 }
 
 sub meta {
-    my ($href) = @_;
+    my ($href, $with_date) = @_;
     my $bn = $href->{brigade_name} || '';
     my $ct = $href->{city} || '';
     my $st = $href->{state} || '';
@@ -146,6 +146,9 @@ sub meta {
                 $meta .= ', ';
             }
             $meta .= $st;
+        }
+        if ($with_date) {
+            $meta .= " on " . date($href->{mdate})->format("%D");
         }
         $meta = "$meta<br>";
     }
@@ -430,6 +433,33 @@ EOS
     $result .= "</table>\n";
 }
 
+sub city_state {
+    my $cs_sth = $dbh->prepare(<<'EOS');
+
+        SELECT DISTINCT CONCAT(state, ' - ', city) as cs, state, city
+          FROM messages
+      ORDER BY cs
+
+EOS
+    my $cnt_sth = $dbh->prepare(<<'EOS');
+            
+            SELECT count(*)
+              FROM messages
+             WHERE state = ? and city = ?
+
+EOS
+    $cs_sth->execute();
+    while (my $href = $cs_sth->fetchrow_hashref()) {
+        my $state = $href->{state};
+        my $city = $href->{city};
+        $cnt_sth->execute($state, $city);
+        my ($count) = $cnt_sth->fetchrow_array();
+        my $url = "$cgi_bin_ml?cmd=search_plus2&city_search=$city+&state_search=$state";
+        $result .= "$state - $city <a href='$url'>$count</a><br>\n";
+    }
+    $result .= '<br>';
+}
+
 sub brigade_names {
     my $bn_sth = $dbh->prepare(<<'EOS');
 
@@ -535,9 +565,9 @@ sub disp_topics {
     }
     if ($href) {
         $message = $href->{message};
-        $meta = meta($href);
+        $meta = meta($href, 1);
         if ($meta) {
-            $meta = "<br>$meta";
+            $meta = "<br>$meta";;
         }
     }
     my %is_current_topic;
@@ -922,7 +952,7 @@ EOS
 }
 
 sub search_plus2 {
-    my $sdate = $P{start_date};
+    my $sdate = trim $P{start_date};
     my @where;
     if ($sdate) {
         my $dt = date($sdate);
@@ -947,19 +977,19 @@ sub search_plus2 {
             return;
         }
     }
-    my $mess = uc $P{message_search};
+    my $mess = trim uc $P{message_search};
     if ($mess) {
         push @where, "message like '%$mess%'"; 
     }
-    my $brig = $P{brigade_name_search};
+    my $brig = trim uc $P{brigade_name_search};
     if ($brig) {
         push @where, "brigade_name like '%$brig%'"; 
     }
-    my $city = $P{city_search};
+    my $city = trim uc $P{city_search};
     if ($city) {
         push @where, "city like '%$city%'"; 
     }
-    my $state = $P{state_search};
+    my $state = trim uc $P{state_search};
     if ($state) {
         push @where, "state like '%$state%'"; 
     }
@@ -1036,6 +1066,11 @@ sub search_messages {
         brigade_names();
         return;
     }
+    elsif($term eq 'CS') {
+        log_it('city state');
+        city_state();
+        return;
+    }
     elsif($term eq 'CT') {
         log_it('counts');
         show_counts();
@@ -1092,12 +1127,14 @@ sub search_messages {
 EOS
     $search_sth->execute();
     log_it("search for $term");
+    $term =~ s{([?*.])}{[$1]}xmsg;
+    $term =~ s{%}{.*}xmsg;
     my $n = 0;
     $result = '';
     while (my $href = $search_sth->fetchrow_hashref()) {
         ++$n;
-        $href->{message} =~ s{\Q$term}
-                             {<span class=highlight>$term</span>}xmsg;
+        $href->{message} =~ s{($term)}
+                             {<span class=highlight>$1</span>}xmsg;
         $result .= msg_fmt($href);
     }
     if ($n == 0) {
