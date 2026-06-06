@@ -77,7 +77,7 @@ my $msg = '<p>';
 my $result = '';
 my $space = '&nbsp;';
 my $cp = 2;
-my $ncol = 4;
+my $ncol = 3;
 my $cgi_bin_ml = 'https://logicalpoetry.com/cgi-bin/ml';
 my $tab = $P{tab} || 'messages';
 
@@ -242,9 +242,9 @@ EOS
 
 EOS
     my $today = today()->as_d8();
-    my $brigade_name = $P{brigade_name} || '';
-    my $city = $P{city} || '';
-    my $state = uc $P{state} || '';
+    my $brigade_name = trim($P{brigade_name}) || '';
+    my $city = trim($P{city}) || '';
+    my $state = trim(uc $P{state}) || '';
     $meta_cookie = $q->cookie(
         -name    => 'message_library',
         -value   => "$brigade_name|$city|$state",
@@ -387,9 +387,16 @@ EOS
 sub record_count {
     my ($table) = @_;
     my $count_sth;
-    if ($table eq 'state' || $table eq 'city') {
+    if ($table eq 'state') {
         $count_sth = $dbh->prepare(<<"EOS");
-            SELECT count(distinct $table) as count
+            SELECT count(distinct state) as count
+              FROM messages
+EOS
+    }
+    elsif ($table eq 'city') {
+        # Oaks, CA and Oaks, PA   !!
+        $count_sth = $dbh->prepare(<<"EOS");
+            SELECT count(distinct concat(state, city)) as count
               FROM messages
 EOS
     }
@@ -664,6 +671,11 @@ EOS
         }
     }
     if ($n != 0) {
+        if (! $links) {
+            print "<div style='margin-top: 20mm'>";
+            print "<input type=submit class=sub value='Submit'>";
+            print "</div>";
+        }
         print "</td>\n";
         $n = 0;
     }
@@ -884,9 +896,9 @@ EOS
                 '')
 
 EOS
-    my $brigade_name = $P{brigade_name} || '';
-    my $city = $P{city} || '';
-    my $state = uc $P{state} || '';
+    my $brigade_name = trim($P{brigade_name}) || '';
+    my $city = trim($P{city}) || '';
+    my $state = trim(uc $P{state}) || '';
     $meta_cookie = $q->cookie(
         -name    => 'message_library',
         -value   => "$brigade_name|$city|$state",
