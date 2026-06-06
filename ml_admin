@@ -461,6 +461,20 @@ EOS
     # rather than creating a hash
     # with key topic id and value description...
     # gather topic descriptions and comma separate them
+    #
+    # we need to address duplicate message_topic records here
+    # not sure yet how they arise but we can delete duplicates.
+    #
+
+=comment
+
+    SELECT message_id, topic_id, COUNT(*) AS cnt
+      FROM message_topic
+  GROUP BY message_id, topic_id HAVING COUNT(*) > 1;
+
+    This gives the message_ids with dup records.
+    Go through them...
+=cut
     my $desc_sth = $dbh->prepare(<<'EOS');
 
         SELECT description
