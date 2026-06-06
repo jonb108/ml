@@ -88,8 +88,11 @@ You can sort the messages in 2 ways:
 The first 30 messages are shown.  If you want to see <i>all</i> of them
 click on <span class=blue>Show All</span> at the bottom.
 <h4>Searching</h4>
-You can search for a keyword in a message.  The word will be highlighted
-in the messages that were found.
+You can search for a keyword in a message.  Enter the search term in the text field and press Enter/Return.
+<p>
+<img src=search.png width=400>
+<p>
+The term will be highlighted in the messages that were found.
 <ul>
 <img src=health.png width=870>
 </ul>
@@ -143,6 +146,8 @@ that topic assigned to them.  They are sorted by date.
 <ul>
 <img src=no_kings.png width=780>
 </ul>
+A special topic is named "Needs Edit/Delete".  Messages with this topic
+will be examined by a "moderator" to see if they need to be corrected or removed.  If you added a message by mistake or see an error after adding it you can add this topic to it.
 <h2>Importing Messages</h2>
 Messages can be added one by one with the <span class=blue>Add Message</span> link.
 More efficiently you can import a file of messages.
@@ -196,19 +201,6 @@ When entering dates for messages you can use several formats:
 <span class=green>dd</span> - current month<p>
 <span class=green>T</span> - today
 </ul>
-<h2>Messages in a Date Range</h2>
-You can see all messages in a date range by entering this
-in the search text field:
-<ul>
-DR 4/5 TO 6/12/25
-</ul>
-DR = Date Range
-<p>
-Another example:
-<ul>
-DR 10 TO T <span style='margin-left: 1.4in;'>(from the 10th of this month to today)</span>
-</ul>
-The messages are sorted by increasing date.
 <h2>Keyboard Shortcuts</h2>
 In the search text field you can use these 'commands' to
 invoke various functions;
@@ -223,28 +215,20 @@ invoke various functions;
 <td>Add Topic</td>
 </tr>
 <tr>
-<td>BN</td>
-<td>Show brigade names - with city and state.
-</tr>
-<tr>
 <td>C</td>
 <td>Show Topics ordered by Count.</td>
 </tr>
 <tr>
-<td>CS</td>
-<td>Show Cities and States and the number of messages.</td>
+<td valign=top>CS</td>
+<td>Show Cities and States and the number of messages that city has posted.  Click on the numbers to see the messages.</td>
 </tr>
 <tr>
 <td>CT</td>
-<td>Show counts of messages and topics.</td>
+<td>Show counts of messages, topics, states, and cities.</td>
 </tr>
 <tr>
 <td>D</td>
 <td>Sort Messages by Date</td>
-</tr>
-<tr>
-<td>DR ...</td>
-<td>Show Messages in a Date Range</td>
 </tr>
 <tr>
 <td>I</td>
@@ -284,7 +268,8 @@ are inappropriate for some reason?  We can't have a delete
 function available to everyone as someone with nefarious intent might
 delete good ones.  It seems we need 'moderators' with the
 (password protected) ability to do the pruning - to "keep
-the tree healthy".
+the tree healthy".  You CAN add the topic "Needs Edit/Delete" and a
+moderator will deal with it.
 <li>The national Signal chat named 'VB Message Brainstorming!'
 is a wonderful place for a free wheeling discussion of creative, timely,
 and potent message ideas.   This library can be used for messages

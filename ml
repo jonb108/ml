@@ -9,7 +9,6 @@ use lib '.';
 TODO:
     cron job to save mysql data
         and vb brigades in vb
-    export, import messages from JOCOVB
 
     RN - no spaces, check for existence
 
@@ -387,10 +386,19 @@ EOS
 
 sub record_count {
     my ($table) = @_;
-    my $count_sth = $dbh->prepare(<<"EOS");
-        SELECT count(*) as count
-          FROM $table
+    my $count_sth;
+    if ($table eq 'state' || $table eq 'city') {
+        $count_sth = $dbh->prepare(<<"EOS");
+            SELECT count(distinct $table) as count
+              FROM messages
 EOS
+    }
+    else {
+        $count_sth = $dbh->prepare(<<"EOS");
+            SELECT count(*) as count
+              FROM $table
+EOS
+    }
     $count_sth->execute();
     my $href = $count_sth->fetchrow_hashref();
     return $href->{count};
@@ -454,7 +462,7 @@ EOS
         my $city = $href->{city};
         $cnt_sth->execute($state, $city);
         my ($count) = $cnt_sth->fetchrow_array();
-        my $url = "$cgi_bin_ml?cmd=search_plus2&city_search=$city+&state_search=$state";
+        my $url = "$cgi_bin_ml?cmd=search_plus2&city_search=$city+&state_search=$state&exact=1";
         $result .= "$state - $city <a href='$url'>$count</a><br>\n";
     }
     $result .= '<br>';
@@ -485,6 +493,12 @@ sub show_counts {
                          ),
                    $q->Tr($q->td($rt, record_count('message_topic')),
                           $q->td(' topics assigned to messages')
+                         ),
+                   $q->Tr($q->td($rt, record_count('state')),
+                          $q->td(' states')
+                         ),
+                   $q->Tr($q->td($rt, record_count('city')),
+                          $q->td(' cities')
                          ),
                ));
 }
@@ -952,6 +966,7 @@ EOS
 }
 
 sub search_plus2 {
+    my $exact = trim $P{exact};
     my $sdate = trim $P{start_date};
     my @where;
     if ($sdate) {
@@ -987,11 +1002,11 @@ sub search_plus2 {
     }
     my $city = trim uc $P{city_search};
     if ($city) {
-        push @where, "city like '%$city%'"; 
+        push @where, $exact? "city = '$city'": "city like '%$city%'"; 
     }
     my $state = trim uc $P{state_search};
     if ($state) {
-        push @where, "state like '%$state%'"; 
+        push @where, $exact? "state = '$state'": "city like '%$state%'"; 
     }
     if (! @where) {
         $result = 'Nothing to search for!';
@@ -1061,12 +1076,7 @@ sub search_messages {
         init();
         add_topic();
     }
-    elsif($term eq 'BN') {
-        log_it('brigade names');
-        brigade_names();
-        return;
-    }
-    elsif($term eq 'CS') {
+    elsif($term eq 'CS' || $term eq 'BN') {
         log_it('city state');
         city_state();
         return;
