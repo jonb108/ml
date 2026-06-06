@@ -457,7 +457,7 @@ EOS
 
 EOS
     $cs_sth->execute();
-    $result = 'State, City and # of messages<br>Click on the numbers to see the messages.<p>';
+    $result = 'State, City and # of messages.&nbsp;&nbsp;&nbsp;Click on the numbers to see the messages.<p>';
     while (my $href = $cs_sth->fetchrow_hashref()) {
         my $state = $href->{state};
         my $city = $href->{city};
@@ -1007,7 +1007,7 @@ sub search_plus2 {
     }
     my $state = trim uc $P{state_search};
     if ($state) {
-        push @where, $exact? "state = '$state'": "city like '%$state%'"; 
+        push @where, $exact? "state = '$state'": "state like '%$state%'"; 
     }
     if (! @where) {
         $result = 'Nothing to search for!';
