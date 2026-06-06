@@ -457,6 +457,7 @@ EOS
 
 EOS
     $cs_sth->execute();
+    $result = 'State, City and # of messages<br>Click on the numbers to see the messages.<p>';
     while (my $href = $cs_sth->fetchrow_hashref()) {
         my $state = $href->{state};
         my $city = $href->{city};
@@ -507,7 +508,7 @@ sub msg_fmt {
     my ($href) = @_;
     my $mid = $href->{id};
     my $adj = "$cgi_bin_ml?cmd=adjust_topics&message_id=$mid";
-    my $align = $mobile? 'top': 'center';
+    my $align = 'top';
     $q->Tr(
         $q->td({ valign => $align, width => '9%',
                  style => 'white-space: nowrap;' },
