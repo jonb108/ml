@@ -7,6 +7,10 @@ use lib '.';
 =comment
 
 TODO:
+    timestamp the log
+    log is for today.  how to see other days?
+    add edit function to ml_admin
+
     cron job to save mysql data
         and vb brigades in vb
 
@@ -698,7 +702,7 @@ EOH
 # and decrement topics.count fields
 # then add new ones
 #
-# TODO: Need journaling here!
+# Journaling is used here.
 #
 sub adjust_topics2 {
     my $message_id = $P{message_id};
@@ -1031,7 +1035,7 @@ sub search_plus2 {
         SELECT *
           FROM messages
          WHERE $where
-      ORDER BY mdate desc
+      ORDER BY mdate desc, message asc
 
 EOS
     $plus_sth->execute();
@@ -1145,7 +1149,7 @@ sub search_messages {
         SELECT *
           FROM messages
          WHERE message like '%$term%'
-      ORDER BY mdate desc
+      ORDER BY mdate desc, message asc
 
 EOS
     $search_sth->execute();
@@ -1187,7 +1191,7 @@ EOS
           FROM messages, message_topic
          WHERE messages.id = message_topic.message_id
                AND message_topic.topic_id = ?
-      ORDER BY messages.mdate desc
+      ORDER BY messages.mdate desc, messages.message asc
 
 EOS
     $topic_search_sth->execute($tid);
