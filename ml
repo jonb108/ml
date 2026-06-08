@@ -79,9 +79,10 @@ use Date::Simple qw/
 
 my $msg = '<p>';
 my $result = '';
-my $space = '&nbsp;';
+my $space = '&nbsp;' x 4;
 my $cp = 2;
 my $ncol = 3;
+# EDIT!
 my $cgi_bin_ml = 'https://logicalpoetry.com/cgi-bin/ml';
 my $tab = $P{tab} || 'messages';
 
@@ -415,43 +416,6 @@ EOS
     return $href->{count};
 }
 
-sub date_range {
-    my ($from, $to) = @_;
-
-    Date::Simple::default_format('%B %d, %Y');
-    my $err;
-    my $dt_from = date($from);
-    my $dt_to   = date($to);
-    if (! $dt_from) {
-        $err .= "Invalid from date: $from<br>\n";
-    }
-    if (! $dt_to) {
-        $err .= "Invalid to date: $to<br>\n";
-    }
-    if ($dt_from && $dt_to && $dt_from > $dt_to) {
-        $err .= "From date ($dt_from) is after To date ($dt_to)!";
-    }
-    if ($err) {
-        $result = $err;
-        return;
-    }
-    $result = "<p>Messages dated from $dt_from to $dt_to<p>\n";
-    my $date_range_sth = $dbh->prepare(<<'EOS');
-
-        SELECT *
-          FROM messages
-         WHERE ? <= mdate and mdate <= ?
-      ORDER BY mdate asc
-
-EOS
-    $date_range_sth->execute($dt_from->as_d8(), $dt_to->as_d8());
-    $result .= "<table cellpadding=$cp>\n";
-    while (my $href = $date_range_sth->fetchrow_hashref()) {
-        $result .= msg_fmt($href);
-    }
-    $result .= "</table>\n";
-}
-
 sub city_state {
     my $cs_sth = $dbh->prepare(<<'EOS');
 
@@ -468,7 +432,7 @@ EOS
 
 EOS
     $cs_sth->execute();
-    $result = 'State, City and # of messages.&nbsp;&nbsp;&nbsp;Click on the numbers to see the messages.<p>';
+    $result = "State, City and # of messages.&nbsp;&nbsp;&nbsp;Click on the numbers to see the messages.<p><div style='margin-left: .5in;'>";
     while (my $href = $cs_sth->fetchrow_hashref()) {
         my $state = $href->{state};
         my $city = $href->{city};
@@ -477,7 +441,7 @@ EOS
         my $url = "$cgi_bin_ml?cmd=search_plus2&city_search=$city+&state_search=$state&exact=1";
         $result .= "$state - $city <a href='$url'>$count</a><br>\n";
     }
-    $result .= '<br>';
+    $result .= "</div>";
 }
 
 sub brigade_names {
@@ -1108,10 +1072,6 @@ sub search_messages {
         $P{order} ='mdate desc, message asc';
         return;
     }
-    elsif ($term =~ m{\A DR \s+ (\S+) \s+ TO \s+ (\S+) \z}xms) {
-        date_range($1, $2);
-        return;
-    }
     elsif ($term eq 'S') {
         init();
         search_plus();
@@ -1416,11 +1376,11 @@ if ($tab eq 'messages') {
 <a target=_blank class=left href=/ml/help.html accesskey='h'>Help</a>
 $msg
 <form action=$cgi_bin_ml>
-Search for <input type=text name=search_term size=15 autofocus style='text-transform: uppercase'>
-${space}Sort By
-$space<a $sort_class{mdate} href='$cgi_bin_ml?tab=messages&order=mdate+desc,message+asc&no_limit=0'>Date</a>
-$space<a $sort_class{message} href='$cgi_bin_ml?tab=messages&order=message+asc&no_limit=0'>Message</a>
-<a style='margin-left: .65in;' href='$cgi_bin_ml?search_plus=1'>Search+</a>
+Search for&nbsp;&nbsp;<input type=text name=search_term size=15 autofocus style='text-transform: uppercase'>
+$space<a href='$cgi_bin_ml?tab=messages&order=mdate+desc,message+asc&no_limit=0'>Recent</a>
+&nbsp;&nbsp;<a href='$cgi_bin_ml?search_term=cs'>Cities</a>
+$space<a href='$cgi_bin_ml?search_term=ct'>Counts</a>
+$space<a href='$cgi_bin_ml?search_plus=1'>Search+</a>
 </form>
 <p>
 EOH

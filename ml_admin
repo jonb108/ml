@@ -183,7 +183,7 @@ sub search_messages {
         SELECT *
           FROM messages
          WHERE message like '%$search_term%'
-      ORDER BY mdate desc
+      ORDER BY message asc
 
 EOS
     $search_sth->execute();
