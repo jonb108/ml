@@ -6,7 +6,6 @@ thank them for uploading a message to
 link to other cities (with # of messages)
 tell about the import of all past messages
     offer to help
-link to video
 no duplicate messages - use vb (or your own spreadsheet)
     for maintaining your precise brigade history
 what domain name for this application?
@@ -45,7 +44,7 @@ pasadenabb26@gmail.com
 CA - Porter Ranch
 same as Encino
 CA - Rodeo
-membership-outreach-ineb@googlegroups.com
+?? membership-outreach-ineb at googlegroups.com
 CA - Sacramento
 gtgoverpass@proton.me
 CA - Salinas
