@@ -93,6 +93,10 @@ sub repl_quote {
     return $s;
 }
 
+sub mixed {
+    return join ' ', map { ucfirst lc } split ' ', shift;
+}
+
 sub log_it {
     open my $out, '>>', 'ml_log';
     print {$out} "@_\n";
@@ -1011,11 +1015,13 @@ EOS
                                  {<span class=highlight>$mess</span>}xmsg;
         }
         $result .= msg_fmt($href);
-        my $meta = meta($href);
-        if ($meta) {
-            $result .= $q->Tr($q->td('&nbsp;'),
-                              $q->td($meta)
-                             );
+        if (! $exact) {
+            my $meta = meta($href);
+            if ($meta) {
+                $result .= $q->Tr($q->td('&nbsp;'),
+                                  $q->td($meta)
+                                 );
+            }
         }
     }
     if ($n == 0) {
@@ -1023,6 +1029,11 @@ EOS
     }
     else {
         $result = $q->table({ cellpadding => $cp}, $result);
+        if ($exact) {
+            # city, state search
+            $result = "Messages from " . mixed($city) . ", $state<p>\n"
+                    . $result;
+        }
     }
 }
 
