@@ -6,7 +6,6 @@ use lib '.';
 =comment
 
 TODO:
-    link to ml
     see log of all ml activity
         tail
 
@@ -49,15 +48,6 @@ my $dbh = DBI->connect(
     'yoG.Sit801',
     { RaiseError => 1, AutoCommit => 1 }
 ) or die "cannot connect to database\n";
-
-# used in two different places so we prepare now
-my $get_msg_sth = $dbh->prepare(<<'EOS');
-
-        SELECT *
-          FROM messages
-         WHERE id = ?
-
-EOS
 
 use Date::Simple qw/
     date
@@ -122,11 +112,15 @@ sub msg_fmt {
                  style => 'white-space: nowrap;' },
                "<label><input type=checkbox name=del_msg_id value='$href->{id}'> "
                . gray(date($href->{mdate})->format('%D'))
+               . "</label>"
                . $space
+               . "<a href='$cgi_bin_mla?edit_msg_id=$mid'>"
                . msg_green($href->{message})
+               . "</a>"
                . $space
                . "$href->{topics_desc}"
-               . "</label>\n")
+               . "\n"
+        )
     );
 }
 
@@ -156,9 +150,8 @@ EOS
     while (my $href = $all_topics_sth->fetchrow_hashref()) {
         my $tid = $href->{id};
         my $desc = $href->{description};
-        $result .= "<label>"
-            . "<input type=checkbox name=topic_ids value=$tid>"
-            . " $desc</label><p>\n";
+        $result .= "<input type=checkbox name=topic_ids value=$tid>"
+            . " <a class=no_hi href='$cgi_bin_mla?edit_topic_id=$tid'>$desc</a><p>\n";
         ++$n;
         if ($n >= $per_col) {
             $result .= "</td><td valign=top>\n";
@@ -178,11 +171,15 @@ EOH
 }
 
 sub search_messages {
+    my $sterm = $search_term;
+    if ($search_term !~ m{\A'.*'\z}xms) {
+        $search_term =  "'%$search_term%'";
+    }
     my $search_sth = $dbh->prepare(<<"EOS");
 
         SELECT *
           FROM messages
-         WHERE message like '%$search_term%'
+         WHERE message like $search_term
       ORDER BY message asc
 
 EOS
@@ -193,12 +190,12 @@ EOS
     $result = '';
     while (my $href = $search_sth->fetchrow_hashref()) {
         ++$n;
-        $href->{message} =~ s{\Q$search_term}
-                             {<span class=highlight>$search_term</span>}xmsg;
+        $href->{message} =~ s{\Q$sterm}
+                             {<span class=highlight>$sterm</span>}xmsg;
         push @rows,  msg_fmt($href);
     }
     if ($n == 0) {
-        $result = "No messages match '$search_term'.";
+        $result = "No messages match '$sterm'.";
     }
     else {
         $result = "<form action=$cgi_bin_mla>\n" 
@@ -210,11 +207,22 @@ EOS
 }
 
 sub init {
+    my ($no_focus) = @_;
+
+    my $focus = $no_focus? '': 'autofocus';
     print $q->header();
     print <<"EOH";
 <html>
 <head>
 <style>
+.no_hi {
+    text-decoration: none;
+    color: black;
+}
+th {
+    font-size: 18pt;
+    text-align: left;
+}
 .all_opt {
     margin-left: 1.5in;
     color: green;
@@ -315,7 +323,7 @@ pre {
 <body>
 <h1><a style='color:black' href=$cgi_bin_ml?tab=messages>VB Message Library Admin</a></h1>
 <form action=$cgi_bin_mla>
-Search Messages for <input type=text name=search_term size=15 autofocus style='text-transform: uppercase'>
+Search Messages for <input type=text name=search_term size=15 $focus style='text-transform: uppercase'>
 <a style='margin-left: .75in' href=$cgi_bin_mla?cmd=topics>Topics</a>
 <a style='margin-left: .75in' href=$cgi_bin_mla?cmd=regen>Regenerate</a>
 </form>
@@ -532,7 +540,111 @@ EOS
     $result .= 'Regenerated';
 }
 
-if ($search_term eq 'T' || $cmd eq 'topics') {
+sub edit_msg {
+    my ($id) = @_;
+
+    my $get_msg_sth = $dbh->prepare(<<'EOS');
+
+        SELECT *
+          FROM messages
+         WHERE id = ?
+
+EOS
+
+    $get_msg_sth->execute($id);
+    my $href = $get_msg_sth->fetchrow_hashref();
+    print <<"EOH";
+<form action=$cgi_bin_mla method=post>
+<input type=hidden name=cmd value=edit_msg2>
+<input type=hidden name=id value=$id>
+<table cellpadding=5>
+<tr><th>Date</th><td><input type=text name=mdate value='$href->{mdate}' size=8></td></tr>
+<tr><th>Message</th><td><input style='text-transform: uppercase;' type=text name=message value='$href->{message}' size=70 autofocus></td></tr>
+<tr><th>Brigade Name</th><td><input type=text name=brigade_name value='$href->{brigade_name}' size=30></td></tr>
+<tr><th>City</th><td><input type=text name=city value='$href->{city}' size=40></td></tr>
+<tr><th>State</th><td><input type=text name=state value='$href->{state}' size=2></td></tr>
+<tr><td><input type=submit value='Submit' class=sub></td></tr>
+</table>
+</form>
+EOH
+}
+
+sub edit_msg2 {
+    my $put_msg_sth = $dbh->prepare(<<'EOS');
+        
+        UPDATE messages
+           SET mdate = ?,
+               message = ?,
+               brigade_name = ?,
+               city = ?,
+               state = ?
+         WHERE id = ?
+EOS
+    $put_msg_sth->execute(
+        $P{mdate},
+        uc $P{message},
+        $P{brigade_name},
+        $P{city},
+        $P{state},
+        $P{id}
+    );
+}
+
+sub edit_topic {
+    my ($id) = @_;
+
+    my $get_topic_sth = $dbh->prepare(<<'EOS');
+
+        SELECT *
+          FROM topics
+         WHERE id = ?
+
+EOS
+
+    $get_topic_sth->execute($id);
+    my $href = $get_topic_sth->fetchrow_hashref();
+    print <<"EOH";
+<form action=$cgi_bin_mla method=post>
+<input type=hidden name=cmd value=edit_topic2>
+<input type=hidden name=id value=$id>
+<table cellpadding=5>
+<tr><th>Description</th><td><input type=text name=description value='$href->{description}' size=40></td></tr>
+<tr><td><input type=submit value='Submit' class=sub></td></tr>
+</table>
+</form>
+EOH
+}
+
+sub edit_topic2 {
+    my $put_topic_sth = $dbh->prepare(<<'EOS');
+        
+        UPDATE topics
+           SET description = ?
+         WHERE id = ?
+EOS
+    $put_topic_sth->execute(
+        $P{description},
+        $P{id}
+    );
+}
+
+if ($P{edit_msg_id}) {
+    init(1);
+    edit_msg($P{edit_msg_id});
+    exit;
+}
+elsif ($cmd eq 'edit_msg2') {
+    edit_msg2();
+}
+elsif ($P{edit_topic_id}) {
+    init(1);
+    edit_topic($P{edit_topic_id});
+    exit;
+}
+elsif ($cmd eq 'edit_topic2') {
+    edit_topic2();
+}
+elsif ($search_term eq 'T' || $cmd eq 'topics') {
     disp_topics();
 }
 elsif ($search_term eq 'R' || $cmd eq 'regen') {
