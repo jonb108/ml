@@ -1113,20 +1113,25 @@ sub search_messages {
         return;
     }
     $term =~ s{\A /}{}xms;      # so we CAN search for AT or A, ...
+                                # since AT = Add Topic
+                                # and A = Add message
+    my $tm = $term;
+    $tm =~ s{[%]}{\\%}xmsg;     # so we can search for a percent %
+                                # forget the % wildcard matching 
     my $where = $term eq 'NT'? "topics_desc = ''"
-               :               "message like '%$term%'";
+               :               "message like '%$tm%' ESCAPE '\\\\'";
     my $search_sth = $dbh->prepare(<<"EOS");
 
         SELECT *
           FROM messages
-         WHERE message like '%$term%'
+         WHERE $where
       ORDER BY mdate desc, message asc
 
 EOS
     $search_sth->execute();
     log_it("search for $term");
     $term =~ s{([?*.])}{[$1]}xmsg;
-    $term =~ s{%}{.*}xmsg;
+    #$term =~ s{%}{.*}xmsg;
     my $n = 0;
     $result = '';
     while (my $href = $search_sth->fetchrow_hashref()) {
