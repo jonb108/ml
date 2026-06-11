@@ -31,7 +31,7 @@ sub JON {
     close $out;
 }
 
-my $max = 30;   # how many to show before 'Show All'?
+my $max = 60;   # how many to show before 'Show All'?
 
 use CGI;
 use CGI::Carp qw/

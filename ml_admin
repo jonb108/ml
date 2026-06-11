@@ -561,7 +561,7 @@ EOS
 <input type=hidden name=id value=$id>
 <table cellpadding=5>
 <tr><th>Date</th><td><input type=text name=mdate value='$href->{mdate}' size=8></td></tr>
-<tr><th>Message</th><td><input style='text-transform: uppercase;' type=text name=message value='$href->{message}' size=70 autofocus></td></tr>
+<tr><th>Message</th><td><input style='text-transform: uppercase;' type=text name=message value="$href->{message}" size=70 autofocus></td></tr>
 <tr><th>Brigade Name</th><td><input type=text name=brigade_name value='$href->{brigade_name}' size=30></td></tr>
 <tr><th>City</th><td><input type=text name=city value='$href->{city}' size=40>
 State <input type=text name=state value='$href->{state}' style='width: 20mm; text-transform: uppercase;'></td></tr>
@@ -610,7 +610,7 @@ EOS
 <input type=hidden name=cmd value=edit_topic2>
 <input type=hidden name=id value=$id>
 <table cellpadding=5>
-<tr><th>Description</th><td><input type=text name=description value='$href->{description}' size=40></td></tr>
+<tr><th>Description</th><td><input type=text name=description value="$href->{description}" size=40></td></tr>
 <tr><td><input type=submit value='Submit' class=sub></td></tr>
 </table>
 </form>
