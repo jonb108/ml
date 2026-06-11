@@ -32,9 +32,9 @@ use CGI::Carp qw/
 /;
 
 my $result;
-my $cgi_bin_ml = 'https://logicalpoetry.com/cgi-bin/ml';
-my $cgi_bin_mla = 'https://logicalpoetry.com/cgi-bin/ml_admin';
-my $ncol = 4;
+my $cgi_bin_ml = 'https://vbmessages.org/cgi-bin/ml';
+my $cgi_bin_mla = 'https://vbmessages.org/cgi-bin/ml_admin';
+my $ncol = 3;
 my $space = '&nbsp;';
 my $q = CGI->new();
 my %P = $q->Vars();
@@ -165,7 +165,7 @@ EOS
     $result .= <<'EOH';
 </tr></table>
 <p>
-<input type=submit class=sub value="Delete Selected Topics">
+<input type=submit class=sub value="Delete Checked Topics">
 </form>
 EOH
 }
@@ -221,7 +221,8 @@ sub init {
 }
 th {
     font-size: 18pt;
-    text-align: left;
+    text-align: right;
+    font-weight: normal;
 }
 .all_opt {
     margin-left: 1.5in;
@@ -324,8 +325,9 @@ pre {
 <h1><a style='color:black' href=$cgi_bin_ml?tab=messages>VB Message Library Admin</a></h1>
 <form action=$cgi_bin_mla>
 Search Messages for <input type=text name=search_term size=15 $focus style='text-transform: uppercase'>
-<a style='margin-left: .75in' href=$cgi_bin_mla?cmd=topics>Topics</a>
-<a style='margin-left: .75in' href=$cgi_bin_mla?cmd=regen>Regenerate</a>
+<a style='margin-left: .5in' href=$cgi_bin_mla?cmd=topics>Topics</a>
+<a style='margin-left: .5in' href=$cgi_bin_mla?cmd=regen>Regen</a>
+<a target=_blank style='margin-left: .5in' href='https://vbmessages.org/ml_admin_help.html'>Help</a>
 </form>
 $result
 </body>
@@ -561,8 +563,8 @@ EOS
 <tr><th>Date</th><td><input type=text name=mdate value='$href->{mdate}' size=8></td></tr>
 <tr><th>Message</th><td><input style='text-transform: uppercase;' type=text name=message value='$href->{message}' size=70 autofocus></td></tr>
 <tr><th>Brigade Name</th><td><input type=text name=brigade_name value='$href->{brigade_name}' size=30></td></tr>
-<tr><th>City</th><td><input type=text name=city value='$href->{city}' size=40></td></tr>
-<tr><th>State</th><td><input type=text name=state value='$href->{state}' size=2></td></tr>
+<tr><th>City</th><td><input type=text name=city value='$href->{city}' size=40>
+State <input type=text name=state value='$href->{state}' style='width: 20mm; text-transform: uppercase;'></td></tr>
 <tr><td><input type=submit value='Submit' class=sub></td></tr>
 </table>
 </form>
@@ -585,7 +587,7 @@ EOS
         uc $P{message},
         $P{brigade_name},
         $P{city},
-        $P{state},
+        uc $P{state},
         $P{id}
     );
 }

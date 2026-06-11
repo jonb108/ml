@@ -83,7 +83,7 @@ my $space = '&nbsp;' x 4;
 my $cp = 2;
 my $ncol = 3;
 # EDIT!
-my $cgi_bin_ml = 'https://logicalpoetry.com/cgi-bin/ml';
+my $cgi_bin_ml = 'https://vbmessages.org/cgi-bin/ml';
 my $tab = $P{tab} || 'messages';
 
 sub repl_quote {
@@ -1188,7 +1188,7 @@ sub init {
 <script>
 function show_date_help() {
     newwin = window.open(
-        'https://logicalpoetry.com/ml/date_help.html', 'date help',
+        'https://vbmessages.org/date_help.html', 'date help',
         'popup=true,height=350,width=400'
     );
     newwin.moveTo(600, 200);
@@ -1384,7 +1384,7 @@ if ($tab eq 'messages') {
 <a class=left href='$cgi_bin_ml?cmd=add_message'>Add Message</a>
 <a class=left href='$cgi_bin_ml?cmd=import'>Import</a>
 <a class=left href='$cgi_bin_ml?tab=topics&order=description+asc'>Topics</a>
-<a target=_blank class=left href=/ml/help.html accesskey='h'>Help</a>
+<a target=_blank class=left href=/help.html accesskey='h'>Help</a>
 $msg
 <form action=$cgi_bin_ml>
 Search for&nbsp;&nbsp;<input type=text name=search_term size=15 autofocus style='text-transform: uppercase'>

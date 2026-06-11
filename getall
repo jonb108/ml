@@ -1,6 +1,6 @@
 #!/bin/sh
-dir=/home4/logical9/www
+dir=/home4/logical9/vbmessages.org
 scp lp:$dir/cgi-bin/ml \
     lp:$dir/cgi-bin/ml_admin \
-    lp:$dir/ml/* \
+    lp:$dir/* \
     .
